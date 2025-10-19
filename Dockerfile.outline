@@ -2,6 +2,8 @@ FROM docker.getoutline.com/outlinewiki/outline:latest
 
 COPY docker.env .env
 
+EXPOSE 10000
+
 ENV NODE_OPTIONS="--max-old-space-size=400"
 
 CMD ["yarn", "start"]
