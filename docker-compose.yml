@@ -1,0 +1,62 @@
+services:
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:latest
+    env_file: ./docker.env
+    expose:
+      - "3000"
+    volumes:
+      - storage-data:/var/lib/outline/data
+    depends_on:
+       postgres:
+        condition: service_healthy
+       redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:alpine
+    env_file: ./docker.env
+    expose:
+      - "6379"
+    volumes:
+      - ./redis.conf:/redis.conf
+    command: ["redis-server", "/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  postgres:
+    image: postgres:alpine
+    env_file: ./docker.env
+    
+    expose:
+      - "5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+ #     PGDATA: '/var/lib/postgresql/data'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'outline'
+
+  https-ngrok:
+    image: ngrok/ngrok:latest
+    command:
+      - "http"
+      - "outline:3000"
+      - "--domain=nonturbinate-johnnie-unmarketed.ngrok-free.dev"
+    depends_on:
+      - outline
+    restart: always
+    environment:
+      NGROK_AUTHTOKEN: '34ILpzy2RDfXwh2PC75CgeLbdlv_5vuZQoevDEbYQb4zWkFcH'
+
+volumes:
+  storage-data:
+  database-data:
