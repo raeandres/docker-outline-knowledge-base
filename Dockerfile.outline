@@ -1,9 +1,14 @@
 FROM docker.getoutline.com/outlinewiki/outline:latest
 
 COPY docker.env .env
+COPY start.sh /start.sh
+
+RUN chmod +x /start.sh
 
 EXPOSE 10000
 
 ENV NODE_OPTIONS="--max-old-space-size=400"
+ENV PORT=10000
+ENV HOST=0.0.0.0
 
-CMD ["yarn", "start"]
+CMD ["/start.sh"]
