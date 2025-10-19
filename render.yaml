@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: outline-app
+    env: docker
+    dockerfilePath: ./Dockerfile.outline
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: outline-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: outline-redis
+          property: connectionString
+    
+  - type: pserv
+    name: outline-db
+    databaseName: outline
+    user: user
+    
+  - type: redis
+    name: outline-redis
