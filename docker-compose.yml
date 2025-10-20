@@ -7,8 +7,6 @@ services:
     volumes:
       - storage-data:/var/lib/outline/data
     depends_on:
-       postgres:
-        condition: service_healthy
        redis:
         condition: service_healthy
 
@@ -26,25 +24,6 @@ services:
       timeout: 30s
       retries: 3
 
-  postgres:
-    image: postgres:alpine
-    env_file: ./docker.env
-    
-    expose:
-      - "5432"
-    volumes:
-      - database-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-    environment:
- #     PGDATA: '/var/lib/postgresql/data'
-      POSTGRES_USER: 'user'
-      POSTGRES_PASSWORD: 'pass'
-      POSTGRES_DB: 'outline'
-
   https-ngrok:
     image: ngrok/ngrok:latest
     command:
@@ -59,4 +38,3 @@ services:
 
 volumes:
   storage-data:
-  database-data:
