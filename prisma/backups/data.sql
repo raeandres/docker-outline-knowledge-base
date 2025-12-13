@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict NIH3Rzyv8ybve4vOhS6gKdwd3egrHZ6O8eRJb2k8NNhAaP9J0vQHnNSSJXzmtIX
+-- \restrict fYfkl4nT3P9kD2acgwGM3TUrcdQ8gi8YWeY9bxwH5ecINVH4DOp4iKyrjPMnwWv
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -106,6 +106,14 @@ COPY "auth"."mfa_challenges" ("id", "factor_id", "created_at", "verified_at", "i
 --
 
 COPY "auth"."oauth_authorizations" ("id", "authorization_id", "client_id", "user_id", "redirect_uri", "scope", "state", "resource", "code_challenge", "code_challenge_method", "response_type", "status", "authorization_code", "created_at", "expires_at", "approved_at", "nonce") FROM stdin;
+\.
+
+
+--
+-- Data for Name: oauth_client_states; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+COPY "auth"."oauth_client_states" ("id", "provider_type", "code_verifier", "created_at") FROM stdin;
 \.
 
 
@@ -3273,6 +3281,6 @@ SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 1, false);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict NIH3Rzyv8ybve4vOhS6gKdwd3egrHZ6O8eRJb2k8NNhAaP9J0vQHnNSSJXzmtIX
+-- \unrestrict fYfkl4nT3P9kD2acgwGM3TUrcdQ8gi8YWeY9bxwH5ecINVH4DOp4iKyrjPMnwWv
 
 RESET ALL;
