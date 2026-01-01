@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict CWZpquriF1k83F8tl1FYFpkGYqrOGgQ1jTgRHiJFSxPK8JhraQq5B2Ty80a64qY
+-- \restrict Ax0skLzJ6Bu8nOYDNT0jiGCR5HS54dYZs2a4qfhx1KxdMCxpX1DpWrnXAGXe8MV
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -449,7 +449,7 @@ COPY "public"."apiKeys" ("id", "name", "secret", "userId", "createdAt", "updated
 --
 
 COPY "public"."teams" ("id", "name", "createdAt", "updatedAt", "avatarUrl", "deletedAt", "sharing", "subdomain", "documentEmbeds", "guestSignin", "domain", "signupQueryParams", "collaborativeEditing", "defaultUserRole", "defaultCollectionId", "memberCollectionCreate", "inviteRequired", "preferences", "suspendedAt", "lastActiveAt", "memberTeamCreate", "approximateTotalAttachmentsSize", "previousSubdomains", "description") FROM stdin;
-536ea67a-0c1a-4692-bf77-e3d0be7e5faa	Rae-An Andres Team	2025-10-20 12:13:56.808+00	2025-12-30 14:18:22.109+00	/api/files.get?key=avatars/536ea67a-0c1a-4692-bf77-e3d0be7e5faa/4f9451a8-3a0c-40cd-8a5f-7fc03c5ef8a5	\N	t	rae-anandresteam	t	t	\N	\N	\N	member	\N	t	f	{"membersCanInvite": true}	\N	2025-12-30 14:18:22.109+00	t	0	\N	\N
+536ea67a-0c1a-4692-bf77-e3d0be7e5faa	Rae-An Andres Team	2025-10-20 12:13:56.808+00	2025-12-31 14:53:13.359+00	/api/files.get?key=avatars/536ea67a-0c1a-4692-bf77-e3d0be7e5faa/4f9451a8-3a0c-40cd-8a5f-7fc03c5ef8a5	\N	t	rae-anandresteam	t	t	\N	\N	\N	member	\N	t	f	{"membersCanInvite": true}	\N	2025-12-31 14:53:13.359+00	t	0	\N	\N
 \.
 
 
@@ -458,7 +458,7 @@ COPY "public"."teams" ("id", "name", "createdAt", "updatedAt", "avatarUrl", "del
 --
 
 COPY "public"."users" ("id", "email", "name", "jwtSecret", "createdAt", "updatedAt", "teamId", "avatarUrl", "suspendedById", "suspendedAt", "lastActiveAt", "lastActiveIp", "lastSignedInAt", "lastSignedInIp", "deletedAt", "lastSigninEmailSentAt", "language", "flags", "invitedById", "preferences", "notificationSettings", "role", "timezone") FROM stdin;
-f4ec95e8-24e2-4484-b927-a12ae26fa3e2	raean.andres@gmail.com	raean.​andres	\\x6923dbbb97c6a19ea37adecd674eab84f00aebbebb9c7206ebdd7d37fa518a455213bc680b81766e884ce1a8b1bce6119243f8dce81af324f41c17dc300814602c6c1eebe9375ede89964b82f21c13b9d8515619d280c40543efb612a34ecac4eb9541c62749403f2e9cc7252e9ff2365666b2a48564af82cf4ed66b37a5207c92359244fd98a30c8f7ddc1070b625ea78567651bf3c134b5fed1fec61aa7448	2025-10-20 12:13:57.191+00	2025-12-30 14:18:22.109+00	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	/api/files.get?key=avatars/f4ec95e8-24e2-4484-b927-a12ae26fa3e2/298e834e-251e-4516-982c-9cea0b4fbc9b	\N	\N	2025-12-30 14:18:22.109+00	120.29.77.202	2025-12-02 18:26:02.287+00	175.156.140.19	\N	\N	en_US	{"desktopWeb": 1}	\N	\N	{}	admin	Asia/Manila
+f4ec95e8-24e2-4484-b927-a12ae26fa3e2	raean.andres@gmail.com	raean.​andres	\\x6923dbbb97c6a19ea37adecd674eab84f00aebbebb9c7206ebdd7d37fa518a455213bc680b81766e884ce1a8b1bce6119243f8dce81af324f41c17dc300814602c6c1eebe9375ede89964b82f21c13b9d8515619d280c40543efb612a34ecac4eb9541c62749403f2e9cc7252e9ff2365666b2a48564af82cf4ed66b37a5207c92359244fd98a30c8f7ddc1070b625ea78567651bf3c134b5fed1fec61aa7448	2025-10-20 12:13:57.191+00	2025-12-31 14:53:13.358+00	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	/api/files.get?key=avatars/f4ec95e8-24e2-4484-b927-a12ae26fa3e2/298e834e-251e-4516-982c-9cea0b4fbc9b	\N	\N	2025-12-31 14:53:13.358+00	120.29.77.202	2025-12-02 18:26:02.287+00	175.156.140.19	\N	\N	en_US	{"desktopWeb": 1}	\N	\N	{}	admin	Asia/Manila
 \.
 
 
@@ -3141,7 +3141,7 @@ COPY "public"."team_domains" ("id", "teamId", "createdById", "name", "createdAt"
 --
 
 COPY "public"."user_authentications" ("id", "userId", "authenticationProviderId", "accessToken", "refreshToken", "scopes", "providerId", "createdAt", "updatedAt", "expiresAt", "lastValidatedAt") FROM stdin;
-6936ad15-9908-4572-80c8-f0ed4888152d	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	fe380a2e-b8ce-4cc2-bc49-63f78bfa721f	\\x120a0e239b6ba40f2cacc24c045fd4d332d9281919c41fe0ff6d0584dacb2bcc125bfca393976fb311678a6890a3d98f1ead58b3e1db8d538f03c4997de726e561b110e311032646edd1e0129a65c04e028a7f800ad2ef1b962654c73e0e40f3a1ed905a53c1d457f45359ce45ec6a53	\N	{identity.email,identity.basic,identity.avatar,identity.team}	U09M66EU0GK	2025-10-20 12:13:57.221+00	2025-12-30 13:39:01.839+00	\N	2025-12-30 13:39:01.839+00
+6936ad15-9908-4572-80c8-f0ed4888152d	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	fe380a2e-b8ce-4cc2-bc49-63f78bfa721f	\\x120a0e239b6ba40f2cacc24c045fd4d332d9281919c41fe0ff6d0584dacb2bcc125bfca393976fb311678a6890a3d98f1ead58b3e1db8d538f03c4997de726e561b110e311032646edd1e0129a65c04e028a7f800ad2ef1b962654c73e0e40f3a1ed905a53c1d457f45359ce45ec6a53	\N	{identity.email,identity.basic,identity.avatar,identity.team}	U09M66EU0GK	2025-10-20 12:13:57.221+00	2025-12-31 14:53:13.688+00	\N	2025-12-31 14:53:13.688+00
 \.
 
 
@@ -3457,6 +3457,6 @@ SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 1, false);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict CWZpquriF1k83F8tl1FYFpkGYqrOGgQ1jTgRHiJFSxPK8JhraQq5B2Ty80a64qY
+-- \unrestrict Ax0skLzJ6Bu8nOYDNT0jiGCR5HS54dYZs2a4qfhx1KxdMCxpX1DpWrnXAGXe8MV
 
 RESET ALL;
