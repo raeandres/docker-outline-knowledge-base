@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict qMvcDLkXC1k7E0JRa2xZREGa1dXuBiJkytxtAQmDbbLnZ7qjFTsj7IgFgy4fn74
+-- \restrict Xev3S4U5fZQwxDS6VebDuQcdzMagLEwEm6cdIL458mH6CgNVCnjRpdYvtc6peno
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -449,7 +449,7 @@ COPY "public"."apiKeys" ("id", "name", "secret", "userId", "createdAt", "updated
 --
 
 COPY "public"."teams" ("id", "name", "createdAt", "updatedAt", "avatarUrl", "deletedAt", "sharing", "subdomain", "documentEmbeds", "guestSignin", "domain", "signupQueryParams", "collaborativeEditing", "defaultUserRole", "defaultCollectionId", "memberCollectionCreate", "inviteRequired", "preferences", "suspendedAt", "lastActiveAt", "memberTeamCreate", "approximateTotalAttachmentsSize", "previousSubdomains", "description") FROM stdin;
-536ea67a-0c1a-4692-bf77-e3d0be7e5faa	Rae-An Andres Team	2025-10-20 12:13:56.808+00	2026-01-09 18:35:41.472+00	/api/files.get?key=avatars/536ea67a-0c1a-4692-bf77-e3d0be7e5faa/4f9451a8-3a0c-40cd-8a5f-7fc03c5ef8a5	\N	t	rae-anandresteam	t	t	\N	\N	\N	member	\N	t	f	{"membersCanInvite": true}	\N	2026-01-09 18:35:41.472+00	t	0	\N	\N
+536ea67a-0c1a-4692-bf77-e3d0be7e5faa	Rae-An Andres Team	2025-10-20 12:13:56.808+00	2026-01-10 10:34:42.438+00	/api/files.get?key=avatars/536ea67a-0c1a-4692-bf77-e3d0be7e5faa/4f9451a8-3a0c-40cd-8a5f-7fc03c5ef8a5	\N	t	rae-anandresteam	t	t	\N	\N	\N	member	\N	t	f	{"membersCanInvite": true}	\N	2026-01-10 10:34:42.438+00	t	0	\N	\N
 \.
 
 
@@ -458,7 +458,7 @@ COPY "public"."teams" ("id", "name", "createdAt", "updatedAt", "avatarUrl", "del
 --
 
 COPY "public"."users" ("id", "email", "name", "jwtSecret", "createdAt", "updatedAt", "teamId", "avatarUrl", "suspendedById", "suspendedAt", "lastActiveAt", "lastActiveIp", "lastSignedInAt", "lastSignedInIp", "deletedAt", "lastSigninEmailSentAt", "language", "flags", "invitedById", "preferences", "notificationSettings", "role", "timezone") FROM stdin;
-f4ec95e8-24e2-4484-b927-a12ae26fa3e2	raean.andres@gmail.com	raean.​andres	\\x6923dbbb97c6a19ea37adecd674eab84f00aebbebb9c7206ebdd7d37fa518a455213bc680b81766e884ce1a8b1bce6119243f8dce81af324f41c17dc300814602c6c1eebe9375ede89964b82f21c13b9d8515619d280c40543efb612a34ecac4eb9541c62749403f2e9cc7252e9ff2365666b2a48564af82cf4ed66b37a5207c92359244fd98a30c8f7ddc1070b625ea78567651bf3c134b5fed1fec61aa7448	2025-10-20 12:13:57.191+00	2026-01-09 18:35:41.472+00	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	/api/files.get?key=avatars/f4ec95e8-24e2-4484-b927-a12ae26fa3e2/298e834e-251e-4516-982c-9cea0b4fbc9b	\N	\N	2026-01-09 18:35:41.472+00	120.29.77.202	2025-12-02 18:26:02.287+00	175.156.140.19	\N	\N	en_US	{"desktopWeb": 1}	\N	\N	{}	admin	Asia/Manila
+f4ec95e8-24e2-4484-b927-a12ae26fa3e2	raean.andres@gmail.com	raean.​andres	\\x6923dbbb97c6a19ea37adecd674eab84f00aebbebb9c7206ebdd7d37fa518a455213bc680b81766e884ce1a8b1bce6119243f8dce81af324f41c17dc300814602c6c1eebe9375ede89964b82f21c13b9d8515619d280c40543efb612a34ecac4eb9541c62749403f2e9cc7252e9ff2365666b2a48564af82cf4ed66b37a5207c92359244fd98a30c8f7ddc1070b625ea78567651bf3c134b5fed1fec61aa7448	2025-10-20 12:13:57.191+00	2026-01-10 10:34:42.438+00	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	/api/files.get?key=avatars/f4ec95e8-24e2-4484-b927-a12ae26fa3e2/298e834e-251e-4516-982c-9cea0b4fbc9b	\N	\N	2026-01-10 10:34:42.438+00	120.29.77.202	2025-12-02 18:26:02.287+00	175.156.140.19	\N	\N	en_US	{"desktopWeb": 1}	\N	\N	{}	admin	Asia/Manila
 \.
 
 
@@ -1481,6 +1481,7 @@ dd6fb536-8054-42a4-a443-629df9b19772	documents.create	{"title": "7.5 Pipeline Ru
 90bbbc16-2b24-47f6-b46b-992421eba414	documents.publish	{"title": "7.5 Pipeline Runbook"}	\N	4698e112-c591-46f4-a92b-26e41d5b01e0	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	2025-10-21 17:24:15.916+00	87b28541-19b3-4125-8bbb-891810c5ff17	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	\N	175.156.140.19	\N	\N
 6882ac9d-8fdc-414a-a797-bb75e5d9f691	revisions.create	\N	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	\N	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	2025-10-21 17:24:16.264+00	87b28541-19b3-4125-8bbb-891810c5ff17	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	92a1868a-b3a8-41a5-b7fd-a65e61d60270	175.156.140.19	{"previous": {}, "attributes": {"userId": "f4ec95e8-24e2-4484-b927-a12ae26fa3e2", "createdAt": "2025-10-21T17:24:15.709Z", "documentId": "87b28541-19b3-4125-8bbb-891810c5ff17"}}	\N
 9ee9db83-c629-43aa-854f-e8aa88ad8503	views.create	\N	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	\N	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	2025-10-21 17:24:19.384+00	87b28541-19b3-4125-8bbb-891810c5ff17	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	1e239288-d10b-4c7f-ab9c-41f733fff12e	175.156.140.19	{"previous": {}, "attributes": {"userId": "f4ec95e8-24e2-4484-b927-a12ae26fa3e2", "documentId": "87b28541-19b3-4125-8bbb-891810c5ff17"}}	app
+696080cb-46aa-4bbd-8e84-d5c159e61ad7	views.create	\N	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	\N	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	2026-01-10 10:34:47.078+00	91ea1be6-36c2-4f32-a200-e9d6adc6b456	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	90c344e4-461b-4c94-98a0-203905c2f35b	120.29.77.202	\N	app
 d24d3013-50cf-4309-a3d4-7ac0b01d06b8	views.create	\N	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	\N	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	2025-10-21 17:21:49.841+00	a22b2c39-403b-4f93-8cee-0c2ba0082531	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	ecbd6bd4-a43e-4018-b706-b8d6acc22305	175.156.140.19	{"previous": {}, "attributes": {"userId": "f4ec95e8-24e2-4484-b927-a12ae26fa3e2", "documentId": "a22b2c39-403b-4f93-8cee-0c2ba0082531"}}	app
 5b56716a-4cde-4665-af71-6396720c3616	subscriptions.create	\N	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	\N	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	2025-10-21 17:22:23.889+00	309d38c0-5cb8-487a-a97d-4b5093b2fcc5	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	9d6b9027-a08c-4c04-8ea1-9abe7df7f264	175.156.140.19	{"previous": {}, "attributes": {"event": "documents.update", "userId": "f4ec95e8-24e2-4484-b927-a12ae26fa3e2", "documentId": "309d38c0-5cb8-487a-a97d-4b5093b2fcc5"}}	\N
 87a95554-db06-47b1-a11e-fb24bb6fc77c	subscriptions.create	\N	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	\N	536ea67a-0c1a-4692-bf77-e3d0be7e5faa	2025-10-21 17:22:50.135+00	7d3eee59-c99c-43de-beda-288d9815a91c	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	55502c25-6c89-42db-9435-dbfaad5e7f69	175.156.140.19	{"previous": {}, "attributes": {"event": "documents.update", "userId": "f4ec95e8-24e2-4484-b927-a12ae26fa3e2", "documentId": "7d3eee59-c99c-43de-beda-288d9815a91c"}}	\N
@@ -3642,7 +3643,7 @@ COPY "public"."team_domains" ("id", "teamId", "createdById", "name", "createdAt"
 --
 
 COPY "public"."user_authentications" ("id", "userId", "authenticationProviderId", "accessToken", "refreshToken", "scopes", "providerId", "createdAt", "updatedAt", "expiresAt", "lastValidatedAt") FROM stdin;
-6936ad15-9908-4572-80c8-f0ed4888152d	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	fe380a2e-b8ce-4cc2-bc49-63f78bfa721f	\\x120a0e239b6ba40f2cacc24c045fd4d332d9281919c41fe0ff6d0584dacb2bcc125bfca393976fb311678a6890a3d98f1ead58b3e1db8d538f03c4997de726e561b110e311032646edd1e0129a65c04e028a7f800ad2ef1b962654c73e0e40f3a1ed905a53c1d457f45359ce45ec6a53	\N	{identity.email,identity.basic,identity.avatar,identity.team}	U09M66EU0GK	2025-10-20 12:13:57.221+00	2026-01-09 17:19:05.745+00	\N	2026-01-09 17:19:05.745+00
+6936ad15-9908-4572-80c8-f0ed4888152d	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	fe380a2e-b8ce-4cc2-bc49-63f78bfa721f	\\x120a0e239b6ba40f2cacc24c045fd4d332d9281919c41fe0ff6d0584dacb2bcc125bfca393976fb311678a6890a3d98f1ead58b3e1db8d538f03c4997de726e561b110e311032646edd1e0129a65c04e028a7f800ad2ef1b962654c73e0e40f3a1ed905a53c1d457f45359ce45ec6a53	\N	{identity.email,identity.basic,identity.avatar,identity.team}	U09M66EU0GK	2025-10-20 12:13:57.221+00	2026-01-10 10:34:42.92+00	\N	2026-01-10 10:34:42.92+00
 \.
 
 
@@ -3898,7 +3899,7 @@ d9ab60c7-8291-45c2-9fe1-972930e3e268	e3f71a8f-1d7f-4473-a232-5df9dd0c96af	f4ec95
 d0274db7-0f52-4e26-8800-04732f424e66	4df39322-71e4-465d-abb5-9a5205832e92	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	1	2026-01-07 17:20:44.551+00	2026-01-07 17:20:44.551+00	\N
 596a6f9f-296f-444b-967d-2c1d5ac6d453	2bde93f2-f545-49ad-86fb-5c2d6106bcc2	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	12	2026-01-07 17:13:40.38+00	2026-01-07 17:22:39.586+00	2026-01-07 17:19:49.015+00
 c542f063-19d4-4e6f-a056-e358399a27b2	bd18ddc1-2779-4a3d-8365-4b796095ed97	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	3	2026-01-09 17:16:22.142+00	2026-01-09 18:35:44.185+00	\N
-90c344e4-461b-4c94-98a0-203905c2f35b	91ea1be6-36c2-4f32-a200-e9d6adc6b456	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	1	2026-01-09 18:35:51.395+00	2026-01-09 18:35:51.395+00	\N
+90c344e4-461b-4c94-98a0-203905c2f35b	91ea1be6-36c2-4f32-a200-e9d6adc6b456	f4ec95e8-24e2-4484-b927-a12ae26fa3e2	2	2026-01-09 18:35:51.395+00	2026-01-10 10:34:47.025+00	\N
 \.
 
 
@@ -3993,6 +3994,6 @@ SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 1, false);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict qMvcDLkXC1k7E0JRa2xZREGa1dXuBiJkytxtAQmDbbLnZ7qjFTsj7IgFgy4fn74
+-- \unrestrict Xev3S4U5fZQwxDS6VebDuQcdzMagLEwEm6cdIL458mH6CgNVCnjRpdYvtc6peno
 
 RESET ALL;
