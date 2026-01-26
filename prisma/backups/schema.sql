@@ -414,11 +414,27 @@ CREATE TABLE IF NOT EXISTS "public"."documents" (
     "summary" "text",
     "icon" character varying(255),
     "color" character varying(255),
-    "apiImportId" "uuid"
+    "apiImportId" "uuid",
+    "language" character varying(2),
+    "popularityScore" double precision DEFAULT '0'::double precision NOT NULL
 );
 
 
 ALTER TABLE "public"."documents" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."emojis" (
+    "id" "uuid" NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "attachmentId" "uuid" NOT NULL,
+    "teamId" "uuid" NOT NULL,
+    "createdById" "uuid" NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE "public"."emojis" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."events" (
@@ -457,7 +473,8 @@ CREATE TABLE IF NOT EXISTS "public"."file_operations" (
     "format" character varying(255) DEFAULT 'outline-markdown'::character varying NOT NULL,
     "includeAttachments" boolean DEFAULT true NOT NULL,
     "deletedAt" timestamp with time zone,
-    "options" "jsonb"
+    "options" "jsonb",
+    "documentId" "uuid"
 );
 
 
@@ -486,7 +503,8 @@ CREATE TABLE IF NOT EXISTS "public"."groups" (
     "updatedAt" timestamp with time zone NOT NULL,
     "deletedAt" timestamp with time zone,
     "externalId" character varying(255),
-    "disableMentions" boolean DEFAULT false NOT NULL
+    "disableMentions" boolean DEFAULT false NOT NULL,
+    "description" "text"
 );
 
 
@@ -583,7 +601,8 @@ CREATE TABLE IF NOT EXISTS "public"."oauth_authentications" (
     "userId" "uuid" NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
-    "deletedAt" timestamp with time zone
+    "deletedAt" timestamp with time zone,
+    "grantId" "uuid"
 );
 
 
@@ -600,7 +619,8 @@ CREATE TABLE IF NOT EXISTS "public"."oauth_authorization_codes" (
     "userId" "uuid" NOT NULL,
     "redirectUri" character varying(255) NOT NULL,
     "expiresAt" timestamp with time zone NOT NULL,
-    "createdAt" timestamp with time zone NOT NULL
+    "createdAt" timestamp with time zone NOT NULL,
+    "grantId" "uuid"
 );
 
 
@@ -622,7 +642,8 @@ CREATE TABLE IF NOT EXISTS "public"."oauth_clients" (
     "redirectUris" character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
-    "deletedAt" timestamp with time zone
+    "deletedAt" timestamp with time zone,
+    "clientType" character varying(255) DEFAULT 'confidential'::character varying NOT NULL
 );
 
 
@@ -787,7 +808,8 @@ CREATE TABLE IF NOT EXISTS "public"."teams" (
     "memberTeamCreate" boolean DEFAULT true NOT NULL,
     "approximateTotalAttachmentsSize" bigint DEFAULT 0,
     "previousSubdomains" character varying(255)[],
-    "description" "text"
+    "description" "text",
+    "passkeysEnabled" boolean DEFAULT false NOT NULL
 );
 
 
@@ -810,6 +832,25 @@ CREATE TABLE IF NOT EXISTS "public"."user_authentications" (
 
 
 ALTER TABLE "public"."user_authentications" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."user_passkeys" (
+    "id" "uuid" NOT NULL,
+    "name" "text" NOT NULL,
+    "userAgent" "text",
+    "credentialId" "text" NOT NULL,
+    "credentialPublicKey" "bytea" NOT NULL,
+    "aaguid" "text",
+    "counter" bigint DEFAULT 0 NOT NULL,
+    "transports" character varying(255)[],
+    "lastActiveAt" timestamp with time zone,
+    "userId" "uuid" NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE "public"."user_passkeys" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."users" (
@@ -961,6 +1002,11 @@ ALTER TABLE ONLY "public"."documents"
 
 
 
+ALTER TABLE ONLY "public"."emojis"
+    ADD CONSTRAINT "emojis_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."events"
     ADD CONSTRAINT "events_pkey" PRIMARY KEY ("id");
 
@@ -1106,6 +1152,16 @@ ALTER TABLE ONLY "public"."user_authentications"
 
 
 
+ALTER TABLE ONLY "public"."user_passkeys"
+    ADD CONSTRAINT "user_passkeys_credentialId_key" UNIQUE ("credentialId");
+
+
+
+ALTER TABLE ONLY "public"."user_passkeys"
+    ADD CONSTRAINT "user_passkeys_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."user_permissions"
     ADD CONSTRAINT "user_permissions_id_pk" PRIMARY KEY ("id");
 
@@ -1135,10 +1191,6 @@ CREATE INDEX "api_keys_user_id_deleted_at" ON "public"."apiKeys" USING "btree" (
 
 
 
-CREATE INDEX "atlases_tsv_idx" ON "public"."collections" USING "gin" ("searchVector");
-
-
-
 CREATE INDEX "attachments_created_at" ON "public"."attachments" USING "btree" ("createdAt");
 
 
@@ -1151,15 +1203,15 @@ CREATE INDEX "attachments_expires_at" ON "public"."attachments" USING "btree" ("
 
 
 
-CREATE INDEX "attachments_key" ON "public"."attachments" USING "btree" ("key");
-
-
-
 CREATE INDEX "attachments_team_id" ON "public"."attachments" USING "btree" ("teamId");
 
 
 
 CREATE INDEX "authentication_providers_provider_id" ON "public"."authentication_providers" USING "btree" ("providerId");
+
+
+
+CREATE INDEX "authentications_team_id_service" ON "public"."authentications" USING "btree" ("teamId", "service");
 
 
 
@@ -1239,6 +1291,22 @@ CREATE INDEX "documents_url_id_deleted_at" ON "public"."documents" USING "btree"
 
 
 
+CREATE INDEX "emojis_attachment_id" ON "public"."emojis" USING "btree" ("attachmentId");
+
+
+
+CREATE INDEX "emojis_created_by_id" ON "public"."emojis" USING "btree" ("createdById");
+
+
+
+CREATE INDEX "emojis_team_id" ON "public"."emojis" USING "btree" ("teamId");
+
+
+
+CREATE UNIQUE INDEX "emojis_team_id_name" ON "public"."emojis" USING "btree" ("teamId", "name");
+
+
+
 CREATE INDEX "events_actor_id" ON "public"."events" USING "btree" ("actorId");
 
 
@@ -1311,11 +1379,19 @@ CREATE INDEX "imports_state_team_id" ON "public"."imports" USING "btree" ("state
 
 
 
+CREATE INDEX "integrations_service_type" ON "public"."integrations" USING "btree" ("service", "type");
+
+
+
+CREATE INDEX "integrations_service_type_createdAt" ON "public"."integrations" USING "btree" ("service", "type", "createdAt");
+
+
+
+CREATE INDEX "integrations_settings_slack_gin" ON "public"."integrations" USING "gin" ((("settings" -> 'slack'::"text"))) WHERE ((("service")::"text" = 'slack'::"text") AND (("type")::"text" = 'linkedAccount'::"text"));
+
+
+
 CREATE INDEX "integrations_team_id_type_service" ON "public"."integrations" USING "btree" ("teamId", "type", "service");
-
-
-
-CREATE INDEX "notifications_archived_at" ON "public"."notifications" USING "btree" ("archivedAt");
 
 
 
@@ -1339,7 +1415,11 @@ CREATE INDEX "notifications_team_id_user_id" ON "public"."notifications" USING "
 
 
 
-CREATE INDEX "notifications_viewed_at" ON "public"."notifications" USING "btree" ("viewedAt") WHERE ("viewedAt" IS NULL);
+CREATE INDEX "oauth_authentications_grant_id" ON "public"."oauth_authentications" USING "btree" ("grantId");
+
+
+
+CREATE INDEX "oauth_authorization_codes_grant_id" ON "public"."oauth_authorization_codes" USING "btree" ("grantId");
 
 
 
@@ -1364,10 +1444,6 @@ CREATE INDEX "reactions_emoji_user_id" ON "public"."reactions" USING "btree" ("e
 
 
 CREATE INDEX "relationships_document_id_type" ON "public"."relationships" USING "btree" ("documentId", "type");
-
-
-
-CREATE INDEX "relationships_type" ON "public"."relationships" USING "btree" ("type");
 
 
 
@@ -1423,11 +1499,15 @@ CREATE INDEX "teams_subdomain" ON "public"."teams" USING "btree" ("subdomain");
 
 
 
-CREATE INDEX "user_authentications_provider_id" ON "public"."user_authentications" USING "btree" ("providerId");
+CREATE INDEX "user_authentications_providerId_createdAt" ON "public"."user_authentications" USING "btree" ("providerId", "createdAt");
 
 
 
 CREATE INDEX "user_authentications_user_id" ON "public"."user_authentications" USING "btree" ("userId");
+
+
+
+CREATE INDEX "user_passkeys_user_id" ON "public"."user_passkeys" USING "btree" ("userId");
 
 
 
@@ -1456,10 +1536,6 @@ CREATE INDEX "users_team_id" ON "public"."users" USING "btree" ("teamId");
 
 
 CREATE INDEX "views_document_id_user_id" ON "public"."views" USING "btree" ("documentId", "userId");
-
-
-
-CREATE INDEX "views_last_editing_at" ON "public"."views" USING "btree" ("lastEditingAt");
 
 
 
@@ -1601,6 +1677,21 @@ ALTER TABLE ONLY "public"."documents"
 
 
 
+ALTER TABLE ONLY "public"."emojis"
+    ADD CONSTRAINT "emojis_attachmentId_fkey" FOREIGN KEY ("attachmentId") REFERENCES "public"."attachments"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."emojis"
+    ADD CONSTRAINT "emojis_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "public"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."emojis"
+    ADD CONSTRAINT "emojis_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."events"
     ADD CONSTRAINT "events_actorId_fkey" FOREIGN KEY ("actorId") REFERENCES "public"."users"("id");
 
@@ -1623,6 +1714,11 @@ ALTER TABLE ONLY "public"."events"
 
 ALTER TABLE ONLY "public"."file_operations"
     ADD CONSTRAINT "file_operations_collectionId_fkey" FOREIGN KEY ("collectionId") REFERENCES "public"."collections"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."file_operations"
+    ADD CONSTRAINT "file_operations_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "public"."documents"("id") ON DELETE CASCADE;
 
 
 
@@ -1923,6 +2019,11 @@ ALTER TABLE ONLY "public"."user_authentications"
 
 ALTER TABLE ONLY "public"."user_authentications"
     ADD CONSTRAINT "user_authentications_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."user_passkeys"
+    ADD CONSTRAINT "user_passkeys_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -2499,6 +2600,12 @@ GRANT ALL ON TABLE "public"."documents" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."emojis" TO "anon";
+GRANT ALL ON TABLE "public"."emojis" TO "authenticated";
+GRANT ALL ON TABLE "public"."emojis" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."events" TO "anon";
 GRANT ALL ON TABLE "public"."events" TO "authenticated";
 GRANT ALL ON TABLE "public"."events" TO "service_role";
@@ -2622,6 +2729,12 @@ GRANT ALL ON TABLE "public"."teams" TO "service_role";
 GRANT ALL ON TABLE "public"."user_authentications" TO "anon";
 GRANT ALL ON TABLE "public"."user_authentications" TO "authenticated";
 GRANT ALL ON TABLE "public"."user_authentications" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."user_passkeys" TO "anon";
+GRANT ALL ON TABLE "public"."user_passkeys" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_passkeys" TO "service_role";
 
 
 
