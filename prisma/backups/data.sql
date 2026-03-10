@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict 5K5qJoex2zxmcrG9xsgLFYs9LmaMnmZFcNXIL2xwVw85xb9St0Q1M8ueOZqr9GZ
+-- \restrict dt9tNCd8pwC2MNvFE6nq5pdURYQ1NUsqlB9pEiml5FlFvtwdvIKShNjzj5mBaW3
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -4289,15 +4289,7 @@ COPY "storage"."buckets_vectors" ("id", "type", "created_at", "updated_at") FROM
 -- Data for Name: objects; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
 --
 
-COPY "storage"."objects" ("id", "bucket_id", "name", "owner", "created_at", "updated_at", "last_accessed_at", "metadata", "version", "owner_id", "user_metadata", "level") FROM stdin;
-\.
-
-
---
--- Data for Name: prefixes; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
---
-
-COPY "storage"."prefixes" ("bucket_id", "name", "created_at", "updated_at") FROM stdin;
+COPY "storage"."objects" ("id", "bucket_id", "name", "owner", "created_at", "updated_at", "last_accessed_at", "metadata", "version", "owner_id", "user_metadata") FROM stdin;
 \.
 
 
@@ -4336,6 +4328,6 @@ SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 1, false);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict 5K5qJoex2zxmcrG9xsgLFYs9LmaMnmZFcNXIL2xwVw85xb9St0Q1M8ueOZqr9GZ
+-- \unrestrict dt9tNCd8pwC2MNvFE6nq5pdURYQ1NUsqlB9pEiml5FlFvtwdvIKShNjzj5mBaW3
 
 RESET ALL;
