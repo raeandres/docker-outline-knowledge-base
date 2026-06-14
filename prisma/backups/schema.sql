@@ -59,6 +59,15 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 
 
+CREATE TYPE "public"."enum_document_insights_period" AS ENUM (
+    'day',
+    'week'
+);
+
+
+ALTER TYPE "public"."enum_document_insights_period" OWNER TO "postgres";
+
+
 CREATE TYPE "public"."enum_file_operations_state" AS ENUM (
     'creating',
     'uploading',
@@ -163,6 +172,22 @@ CREATE TABLE IF NOT EXISTS "public"."SequelizeMeta" (
 ALTER TABLE "public"."SequelizeMeta" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."access_requests" (
+    "id" "uuid" NOT NULL,
+    "status" character varying(255) DEFAULT 'pending'::character varying NOT NULL,
+    "respondedAt" timestamp with time zone,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "documentId" "uuid" NOT NULL,
+    "userId" "uuid" NOT NULL,
+    "teamId" "uuid" NOT NULL,
+    "responderId" "uuid"
+);
+
+
+ALTER TABLE "public"."access_requests" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."apiKeys" (
     "id" "uuid" NOT NULL,
     "name" character varying,
@@ -207,7 +232,8 @@ CREATE TABLE IF NOT EXISTS "public"."authentication_providers" (
     "providerId" character varying(255) NOT NULL,
     "enabled" boolean DEFAULT true NOT NULL,
     "teamId" "uuid" NOT NULL,
-    "createdAt" timestamp with time zone NOT NULL
+    "createdAt" timestamp with time zone NOT NULL,
+    "settings" "jsonb"
 );
 
 
@@ -224,7 +250,9 @@ CREATE TABLE IF NOT EXISTS "public"."authentications" (
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
     "refreshToken" "bytea",
-    "expiresAt" timestamp with time zone
+    "expiresAt" timestamp with time zone,
+    "clientId" character varying(255),
+    "clientSecret" "bytea"
 );
 
 
@@ -348,7 +376,8 @@ CREATE TABLE IF NOT EXISTS "public"."collections" (
     "archivedById" "uuid",
     "apiImportId" "uuid",
     "commenting" boolean,
-    "sourceMetadata" "jsonb"
+    "sourceMetadata" "jsonb",
+    "templateManagement" character varying(255) DEFAULT 'admin'::character varying NOT NULL
 );
 
 
@@ -371,6 +400,26 @@ CREATE TABLE IF NOT EXISTS "public"."comments" (
 
 
 ALTER TABLE "public"."comments" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."document_insights" (
+    "id" "uuid" NOT NULL,
+    "documentId" "uuid" NOT NULL,
+    "teamId" "uuid" NOT NULL,
+    "date" "date" NOT NULL,
+    "viewCount" integer DEFAULT 0 NOT NULL,
+    "viewerCount" integer DEFAULT 0 NOT NULL,
+    "commentCount" integer DEFAULT 0 NOT NULL,
+    "reactionCount" integer DEFAULT 0 NOT NULL,
+    "revisionCount" integer DEFAULT 0 NOT NULL,
+    "editorCount" integer DEFAULT 0 NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "period" "public"."enum_document_insights_period" DEFAULT 'day'::"public"."enum_document_insights_period" NOT NULL
+);
+
+
+ALTER TABLE "public"."document_insights" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."documents" (
@@ -450,6 +499,22 @@ CREATE TABLE IF NOT EXISTS "public"."events" (
 ALTER TABLE "public"."events" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."external_groups" (
+    "id" "uuid" NOT NULL,
+    "externalId" character varying(255) NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "groupId" "uuid",
+    "authenticationProviderId" "uuid" NOT NULL,
+    "teamId" "uuid" NOT NULL,
+    "lastSyncedAt" timestamp with time zone,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE "public"."external_groups" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."file_operations" (
     "id" "uuid" NOT NULL,
     "state" "public"."enum_file_operations_state" NOT NULL,
@@ -512,7 +577,8 @@ CREATE TABLE IF NOT EXISTS "public"."import_tasks" (
     "importId" "uuid" NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
-    "error" character varying(255)
+    "error" character varying(255),
+    "phase" character varying(255) DEFAULT 'page'::character varying NOT NULL
 );
 
 
@@ -526,13 +592,14 @@ CREATE TABLE IF NOT EXISTS "public"."imports" (
     "state" character varying(255) NOT NULL,
     "input" "jsonb" NOT NULL,
     "documentCount" integer DEFAULT 0 NOT NULL,
-    "integrationId" "uuid" NOT NULL,
+    "integrationId" "uuid",
     "createdById" "uuid" NOT NULL,
     "teamId" "uuid" NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
     "deletedAt" timestamp with time zone,
-    "error" character varying(255)
+    "error" character varying(255),
+    "scratch" "jsonb"
 );
 
 
@@ -575,7 +642,8 @@ CREATE TABLE IF NOT EXISTS "public"."notifications" (
     "archivedAt" timestamp with time zone,
     "membershipId" "uuid",
     "data" json,
-    "groupId" "uuid"
+    "groupId" "uuid",
+    "accessRequestId" "uuid"
 );
 
 
@@ -610,7 +678,7 @@ CREATE TABLE IF NOT EXISTS "public"."oauth_authorization_codes" (
     "scope" character varying(255)[] NOT NULL,
     "oauthClientId" "uuid" NOT NULL,
     "userId" "uuid" NOT NULL,
-    "redirectUri" character varying(255) NOT NULL,
+    "redirectUri" character varying(1024) NOT NULL,
     "expiresAt" timestamp with time zone NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "grantId" "uuid"
@@ -625,18 +693,20 @@ CREATE TABLE IF NOT EXISTS "public"."oauth_clients" (
     "name" character varying(255) NOT NULL,
     "description" character varying(255),
     "developerName" character varying(255),
-    "developerUrl" character varying(255),
-    "avatarUrl" character varying(255),
+    "developerUrl" character varying(1024),
+    "avatarUrl" character varying(1024),
     "clientId" character varying(255) NOT NULL,
     "clientSecret" "bytea" NOT NULL,
     "published" boolean DEFAULT false NOT NULL,
     "teamId" "uuid" NOT NULL,
-    "createdById" "uuid" NOT NULL,
-    "redirectUris" character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
+    "createdById" "uuid",
+    "redirectUris" character varying(1024)[] DEFAULT (ARRAY[]::character varying[])::character varying(1024)[] NOT NULL,
     "createdAt" timestamp with time zone NOT NULL,
     "updatedAt" timestamp with time zone NOT NULL,
     "deletedAt" timestamp with time zone,
-    "clientType" character varying(255) DEFAULT 'confidential'::character varying NOT NULL
+    "clientType" character varying(255) DEFAULT 'confidential'::character varying NOT NULL,
+    "lastActiveAt" timestamp with time zone,
+    "registrationAccessTokenHash" character varying(255)
 );
 
 
@@ -710,6 +780,25 @@ CREATE TABLE IF NOT EXISTS "public"."search_queries" (
 ALTER TABLE "public"."search_queries" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."share_subscriptions" (
+    "id" "uuid" NOT NULL,
+    "shareId" "uuid" NOT NULL,
+    "email" character varying(255) NOT NULL,
+    "emailFingerprint" character varying(255) NOT NULL,
+    "secret" character varying(64) NOT NULL,
+    "ipAddress" character varying(45),
+    "confirmedAt" timestamp with time zone,
+    "unsubscribedAt" timestamp with time zone,
+    "lastNotifiedAt" timestamp with time zone,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "documentId" "uuid" NOT NULL
+);
+
+
+ALTER TABLE "public"."share_subscriptions" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."shares" (
     "id" "uuid" NOT NULL,
     "userId" "uuid" NOT NULL,
@@ -728,7 +817,10 @@ CREATE TABLE IF NOT EXISTS "public"."shares" (
     "allowIndexing" boolean DEFAULT true NOT NULL,
     "showLastUpdated" boolean DEFAULT false NOT NULL,
     "collectionId" "uuid",
-    "showTOC" boolean DEFAULT false NOT NULL
+    "showTOC" boolean DEFAULT false NOT NULL,
+    "allowSubscriptions" boolean DEFAULT true NOT NULL,
+    "title" character varying(255),
+    "iconUrl" character varying(4096)
 );
 
 
@@ -802,7 +894,9 @@ CREATE TABLE IF NOT EXISTS "public"."teams" (
     "approximateTotalAttachmentsSize" bigint DEFAULT 0,
     "previousSubdomains" character varying(255)[],
     "description" "text",
-    "passkeysEnabled" boolean DEFAULT false NOT NULL
+    "passkeysEnabled" boolean DEFAULT false NOT NULL,
+    "flags" "jsonb",
+    "guidanceMCP" "text"
 );
 
 
@@ -911,7 +1005,7 @@ CREATE TABLE IF NOT EXISTS "public"."webhook_subscriptions" (
     "id" "uuid" NOT NULL,
     "teamId" "uuid" NOT NULL,
     "createdById" "uuid" NOT NULL,
-    "url" character varying(255) NOT NULL,
+    "url" character varying(1024) NOT NULL,
     "enabled" boolean NOT NULL,
     "name" character varying(255) NOT NULL,
     "events" character varying(255)[] NOT NULL,
@@ -927,6 +1021,11 @@ ALTER TABLE "public"."webhook_subscriptions" OWNER TO "postgres";
 
 ALTER TABLE ONLY "public"."SequelizeMeta"
     ADD CONSTRAINT "SequelizeMeta_pkey" PRIMARY KEY ("name");
+
+
+
+ALTER TABLE ONLY "public"."access_requests"
+    ADD CONSTRAINT "access_requests_pkey" PRIMARY KEY ("id");
 
 
 
@@ -985,6 +1084,11 @@ ALTER TABLE ONLY "public"."comments"
 
 
 
+ALTER TABLE ONLY "public"."document_insights"
+    ADD CONSTRAINT "document_insights_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."documents"
     ADD CONSTRAINT "documents_pkey" PRIMARY KEY ("id");
 
@@ -1002,6 +1106,11 @@ ALTER TABLE ONLY "public"."emojis"
 
 ALTER TABLE ONLY "public"."events"
     ADD CONSTRAINT "events_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."external_groups"
+    ADD CONSTRAINT "external_groups_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1075,6 +1184,11 @@ ALTER TABLE ONLY "public"."oauth_clients"
 
 
 
+ALTER TABLE ONLY "public"."oauth_clients"
+    ADD CONSTRAINT "oauth_clients_registrationAccessTokenHash_key" UNIQUE ("registrationAccessTokenHash");
+
+
+
 ALTER TABLE ONLY "public"."pins"
     ADD CONSTRAINT "pins_pkey" PRIMARY KEY ("id");
 
@@ -1092,6 +1206,11 @@ ALTER TABLE ONLY "public"."revisions"
 
 ALTER TABLE ONLY "public"."search_queries"
     ADD CONSTRAINT "search_queries_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."share_subscriptions"
+    ADD CONSTRAINT "share_subscriptions_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1180,6 +1299,22 @@ ALTER TABLE ONLY "public"."webhook_subscriptions"
 
 
 
+CREATE INDEX "access_requests_document_id" ON "public"."access_requests" USING "btree" ("documentId");
+
+
+
+CREATE UNIQUE INDEX "access_requests_document_id_user_id_pending" ON "public"."access_requests" USING "btree" ("documentId", "userId") WHERE (("status")::"text" = 'pending'::"text");
+
+
+
+CREATE INDEX "access_requests_team_id" ON "public"."access_requests" USING "btree" ("teamId");
+
+
+
+CREATE INDEX "access_requests_user_id" ON "public"."access_requests" USING "btree" ("userId");
+
+
+
 CREATE INDEX "api_keys_user_id_deleted_at" ON "public"."apiKeys" USING "btree" ("userId", "deletedAt");
 
 
@@ -1237,6 +1372,14 @@ CREATE INDEX "comments_created_at" ON "public"."comments" USING "btree" ("create
 
 
 CREATE INDEX "comments_document_id" ON "public"."comments" USING "btree" ("documentId");
+
+
+
+CREATE UNIQUE INDEX "document_insights_document_id_date_period" ON "public"."document_insights" USING "btree" ("documentId", "date", "period");
+
+
+
+CREATE INDEX "document_insights_team_id_date" ON "public"."document_insights" USING "btree" ("teamId", "date");
 
 
 
@@ -1320,6 +1463,14 @@ CREATE INDEX "events_team_id_collection_id" ON "public"."events" USING "btree" (
 
 
 
+CREATE UNIQUE INDEX "external_groups_authentication_provider_id_external_id" ON "public"."external_groups" USING "btree" ("authenticationProviderId", "externalId");
+
+
+
+CREATE INDEX "file_operations_document_id" ON "public"."file_operations" USING "btree" ("documentId");
+
+
+
 CREATE INDEX "file_operations_type_state" ON "public"."file_operations" USING "btree" ("type", "state");
 
 
@@ -1385,6 +1536,10 @@ CREATE INDEX "integrations_settings_slack_gin" ON "public"."integrations" USING 
 
 
 CREATE INDEX "integrations_team_id_type_service" ON "public"."integrations" USING "btree" ("teamId", "type", "service");
+
+
+
+CREATE INDEX "notifications_access_request_id" ON "public"."notifications" USING "btree" ("accessRequestId");
 
 
 
@@ -1460,6 +1615,22 @@ CREATE INDEX "search_queries_user_id" ON "public"."search_queries" USING "btree"
 
 
 
+CREATE INDEX "share_subscriptions_document_id" ON "public"."share_subscriptions" USING "btree" ("documentId");
+
+
+
+CREATE INDEX "share_subscriptions_ip_address" ON "public"."share_subscriptions" USING "btree" ("ipAddress");
+
+
+
+CREATE INDEX "share_subscriptions_share_id_confirmed_at" ON "public"."share_subscriptions" USING "btree" ("shareId", "confirmedAt") WHERE ("unsubscribedAt" IS NULL);
+
+
+
+CREATE UNIQUE INDEX "share_subscriptions_share_id_document_id_email_fingerprint" ON "public"."share_subscriptions" USING "btree" ("shareId", "documentId", "emailFingerprint");
+
+
+
 CREATE UNIQUE INDEX "shares_urlId_teamId_not_revoked_uk" ON "public"."shares" USING "btree" ("urlId", "teamId") WHERE ("revokedAt" IS NULL);
 
 
@@ -1469,6 +1640,14 @@ CREATE INDEX "stars_document_id_user_id" ON "public"."stars" USING "btree" ("doc
 
 
 CREATE INDEX "stars_user_id_document_id" ON "public"."stars" USING "btree" ("userId", "documentId");
+
+
+
+CREATE INDEX "subscriptions_event_collection_id" ON "public"."subscriptions" USING "btree" ("event", "collectionId") WHERE ("deletedAt" IS NULL);
+
+
+
+CREATE INDEX "subscriptions_event_document_id" ON "public"."subscriptions" USING "btree" ("event", "documentId") WHERE ("deletedAt" IS NULL);
 
 
 
@@ -1560,6 +1739,26 @@ CREATE OR REPLACE TRIGGER "documents_tsvectorupdate" BEFORE INSERT OR UPDATE ON 
 
 
 
+ALTER TABLE ONLY "public"."access_requests"
+    ADD CONSTRAINT "access_requests_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "public"."documents"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."access_requests"
+    ADD CONSTRAINT "access_requests_responderId_fkey" FOREIGN KEY ("responderId") REFERENCES "public"."users"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."access_requests"
+    ADD CONSTRAINT "access_requests_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."access_requests"
+    ADD CONSTRAINT "access_requests_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."attachments"
     ADD CONSTRAINT "attachments_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams"("id");
 
@@ -1635,6 +1834,16 @@ ALTER TABLE ONLY "public"."comments"
 
 
 
+ALTER TABLE ONLY "public"."document_insights"
+    ADD CONSTRAINT "document_insights_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "public"."documents"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."document_insights"
+    ADD CONSTRAINT "document_insights_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."documents"
     ADD CONSTRAINT "documents_apiImportId_fkey" FOREIGN KEY ("apiImportId") REFERENCES "public"."imports"("id");
 
@@ -1702,6 +1911,21 @@ ALTER TABLE ONLY "public"."events"
 
 ALTER TABLE ONLY "public"."events"
     ADD CONSTRAINT "events_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id");
+
+
+
+ALTER TABLE ONLY "public"."external_groups"
+    ADD CONSTRAINT "external_groups_authenticationProviderId_fkey" FOREIGN KEY ("authenticationProviderId") REFERENCES "public"."authentication_providers"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."external_groups"
+    ADD CONSTRAINT "external_groups_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "public"."groups"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."external_groups"
+    ADD CONSTRAINT "external_groups_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams"("id") ON DELETE CASCADE;
 
 
 
@@ -1812,6 +2036,11 @@ ALTER TABLE ONLY "public"."integrations"
 
 ALTER TABLE ONLY "public"."integrations"
     ADD CONSTRAINT "integrations_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id");
+
+
+
+ALTER TABLE ONLY "public"."notifications"
+    ADD CONSTRAINT "notifications_accessRequestId_fkey" FOREIGN KEY ("accessRequestId") REFERENCES "public"."access_requests"("id") ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 
@@ -1937,6 +2166,16 @@ ALTER TABLE ONLY "public"."search_queries"
 
 ALTER TABLE ONLY "public"."search_queries"
     ADD CONSTRAINT "search_queries_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id");
+
+
+
+ALTER TABLE ONLY "public"."share_subscriptions"
+    ADD CONSTRAINT "share_subscriptions_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "public"."documents"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."share_subscriptions"
+    ADD CONSTRAINT "share_subscriptions_shareId_fkey" FOREIGN KEY ("shareId") REFERENCES "public"."shares"("id") ON DELETE CASCADE;
 
 
 
@@ -2512,6 +2751,12 @@ GRANT ALL ON TABLE "public"."SequelizeMeta" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."access_requests" TO "anon";
+GRANT ALL ON TABLE "public"."access_requests" TO "authenticated";
+GRANT ALL ON TABLE "public"."access_requests" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."apiKeys" TO "anon";
 GRANT ALL ON TABLE "public"."apiKeys" TO "authenticated";
 GRANT ALL ON TABLE "public"."apiKeys" TO "service_role";
@@ -2584,6 +2829,12 @@ GRANT ALL ON TABLE "public"."comments" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."document_insights" TO "anon";
+GRANT ALL ON TABLE "public"."document_insights" TO "authenticated";
+GRANT ALL ON TABLE "public"."document_insights" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."documents" TO "anon";
 GRANT ALL ON TABLE "public"."documents" TO "authenticated";
 GRANT ALL ON TABLE "public"."documents" TO "service_role";
@@ -2599,6 +2850,12 @@ GRANT ALL ON TABLE "public"."emojis" TO "service_role";
 GRANT ALL ON TABLE "public"."events" TO "anon";
 GRANT ALL ON TABLE "public"."events" TO "authenticated";
 GRANT ALL ON TABLE "public"."events" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."external_groups" TO "anon";
+GRANT ALL ON TABLE "public"."external_groups" TO "authenticated";
+GRANT ALL ON TABLE "public"."external_groups" TO "service_role";
 
 
 
@@ -2683,6 +2940,12 @@ GRANT ALL ON TABLE "public"."revisions" TO "service_role";
 GRANT ALL ON TABLE "public"."search_queries" TO "anon";
 GRANT ALL ON TABLE "public"."search_queries" TO "authenticated";
 GRANT ALL ON TABLE "public"."search_queries" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."share_subscriptions" TO "anon";
+GRANT ALL ON TABLE "public"."share_subscriptions" TO "authenticated";
+GRANT ALL ON TABLE "public"."share_subscriptions" TO "service_role";
 
 
 
